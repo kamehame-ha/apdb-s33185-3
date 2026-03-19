@@ -6,5 +6,9 @@ namespace apdb_3.Classes.UserTypes
 {
     public class Student : User
     {
+        public Student()
+        {
+            this.PermissionLevel = 0;
+        } 
     }
 }

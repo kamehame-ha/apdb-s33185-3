@@ -8,11 +8,17 @@ namespace apdb_3.Classes
     {
         public string Username { get; set; }
         public string Password { get; set; }
-        public int PermissionLevel { get; set; }
+        private int PermissionLevel { get; set; }
 
         public User GetUser(string username)
         {
-            return new User();
+            User user = Database.GetRecord<User>("users", "Username", username);
+            return user;
+        }
+
+        public void CreateUser(User user) 
+        {
+            Database.AddRecord("users", user);
         }
     }
 }

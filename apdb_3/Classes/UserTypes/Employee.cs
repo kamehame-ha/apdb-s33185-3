@@ -6,5 +6,9 @@ namespace apdb_3.Classes.UserTypes
 {
     public class Employee : User
     {
+        public Employee()
+        {
+            this.PermissionLevel = 1;
+        }
     }
 }
