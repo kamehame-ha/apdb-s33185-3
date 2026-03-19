@@ -4,7 +4,7 @@ using System.Text;
 
 namespace apdb_3.Classes.UserTypes
 {
-    internal class Admin
+    public class Admin : User
     {
     }
 }
