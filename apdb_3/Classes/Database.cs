@@ -62,11 +62,11 @@ namespace apdb_3.Classes
                 }
             }
         }
-
-        public static Object? GetRecord(string table, string searchProperty, string searchString)
+        public static T GetRecord<T>(string table, string searchProperty, string searchString)
         {
             string filePath = GetFilePath(table);
-            if (!File.Exists(filePath)) return null;
+
+            if (!File.Exists(filePath)) return default(T);
 
             string jsonContent = File.ReadAllText(filePath);
             JObject root = JObject.Parse(jsonContent);
@@ -78,12 +78,12 @@ namespace apdb_3.Classes
                 {
                     if (item[searchProperty] != null && item[searchProperty].ToString() == searchString)
                     {
-                        return item;
+                        return item.ToObject<T>();
                     }
                 }
             }
 
-            return null;
+            return default(T);
         }
     }
 }
