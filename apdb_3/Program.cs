@@ -1,31 +1,7 @@
 ﻿using apdb_3.Classes;
+using apdb_3.Classes.UserTypes;
 
-Console.WriteLine("Start");
-
-User testuser = new User
-{
-    Username = "Test",
-    PermissionLevel = 0,
-    Password = "Test"
-};
-
-Database.AddRecord("users", testuser);
-
-User testuser2 = new User
-{
-    Username = "Test2",
-    PermissionLevel = 1,
-    Password = "Test2"
-};
-
-Database.AddRecord("users", testuser2);
-
-User targetuser = Database.GetRecord<User>("users", "Username", "Test");
-
-Console.WriteLine($"Found user!\nUsername: {targetuser.Username}");
+Admin admin = new Admin() { Username = "admin", Password = "strong"};
+admin.CreateUser(admin);
 
 Console.ReadLine();
-
-Database.DeleteRecord("users", testuser2);
-
-Console.WriteLine("Finish");
