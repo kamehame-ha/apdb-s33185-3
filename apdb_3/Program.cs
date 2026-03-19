@@ -20,9 +20,9 @@ User testuser2 = new User
 
 Database.AddRecord("users", testuser2);
 
-//User targetuser = (User)Database.GetRecord("users", "Username", "Test");
+User targetuser = Database.GetRecord<User>("users", "Username", "Test");
 
-//Console.WriteLine($"Found user!\nUsername: {targetuser.Username}");
+Console.WriteLine($"Found user!\nUsername: {targetuser.Username}");
 
 Console.ReadLine();
 
