@@ -16,9 +16,9 @@ namespace apdb_3.Classes
             return user;
         }
 
-        public void CreateUser(User user) 
+        public void CreateUser() 
         {
-            Database.AddRecord("users", user);
+            Database.AddRecord("users", this);
         }
     }
 }
