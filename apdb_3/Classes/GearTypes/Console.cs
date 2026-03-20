@@ -4,7 +4,8 @@ using System.Text;
 
 namespace apdb_3.Classes.GearTypes
 {
-    internal class Console
+    public class Console : Gear
     {
+        public string Brand { get; set; }
     }
 }

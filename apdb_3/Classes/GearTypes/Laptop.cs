@@ -4,7 +4,8 @@ using System.Text;
 
 namespace apdb_3.Classes.GearTypes
 {
-    internal class Laptop
+    public class Laptop : Gear
     {
+        public string Processor { get; set; }
     }
 }

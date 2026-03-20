@@ -4,7 +4,8 @@ using System.Text;
 
 namespace apdb_3.Classes.GearTypes
 {
-    internal class Camera
+    public class Camera : Gear
     {
+        public int Mpx { get; set; } 
     }
 }
