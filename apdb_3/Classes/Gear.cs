@@ -8,7 +8,7 @@ namespace apdb_3.Classes
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Id { get; set; }
+        public string Id { get; private set; } = Guid.NewGuid().ToString();
         public BorrowInfo? BorrowInfo { get; set; }
 
         public Gear GetGear(string id)
