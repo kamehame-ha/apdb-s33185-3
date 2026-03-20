@@ -8,7 +8,7 @@ namespace apdb_3.Classes
     {
         public string Username { get; set; }
         public string Password { get; set; }
-        private int PermissionLevel { get; set; }
+        public int PermissionLevel { get; set; }
 
         public User GetUser(string username)
         {
