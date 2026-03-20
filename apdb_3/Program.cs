@@ -1,7 +1,13 @@
 ﻿using apdb_3.Classes;
+using apdb_3.Classes.GearTypes;
 using apdb_3.Classes.UserTypes;
 
-Admin admin = new Admin() { Username = "admin", Password = "strong"};
-admin.CreateUser();
+Laptop laptop = new Laptop {
+    Name = "Lenovo ThinkPad X1 Carbon",
+    Description = "A high-end business laptop with a sleek design and powerful performance.",
+    Processor = "Intel Core i7-1165G7"
+};
 
-Console.ReadLine();
+laptop.CreateGear();
+
+System.Console.ReadLine();
