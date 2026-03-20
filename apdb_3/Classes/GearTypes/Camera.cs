@@ -7,9 +7,5 @@ namespace apdb_3.Classes.GearTypes
     public class Camera : Gear
     {
         public int Mpx { get; set; } 
-        public Camera()
-        {
-            this.LendBaseDuration = 7;
-        }
     }
 }

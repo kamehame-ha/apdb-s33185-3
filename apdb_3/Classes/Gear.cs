@@ -8,8 +8,8 @@ namespace apdb_3.Classes
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public int LendBaseDuration { get; set; }
         public string Id { get; set; }
+        public BorrowInfo? BorrowInfo { get; set; }
 
         public Gear GetGear(string id)
         {
