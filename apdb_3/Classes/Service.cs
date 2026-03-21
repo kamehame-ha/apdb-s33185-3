@@ -85,30 +85,6 @@ namespace apdb_3.Classes
                 }
             }
         }
-
-        private void HandleOvertimeFee(Borrow borrow)
-        {
-            TimeSpan timeRemainingForReturn = borrow.BorrowEnd - DateTime.Now;
-
-            if (timeRemainingForReturn.TotalSeconds < 0)
-            {
-                int overdueDays = Math.Max(1, Math.Abs(timeRemainingForReturn.Days));
-
-                double feePerDay = _user.PermissionLevel > 0 ? 2.5 : 5.0;
-                double totalFee = overdueDays * feePerDay;
-
-                AnsiConsole.WriteLine();
-                AnsiConsole.MarkupLine($"[red]This item is overdue by {overdueDays} day(s).[/]");
-                AnsiConsole.MarkupLine($"[red]Your overtime fee is:[/] [bold white]${totalFee:0.00}[/]");
-
-                AnsiConsole.Prompt(
-                    new SelectionPrompt<string>()
-                        .Title("You must approve the overtime fee to proceed with the return:")
-                        .AddChoices(new[] { $"Approve and pay ${totalFee:0.00}" })
-                        .HighlightStyle(new Style(foreground: Color.Red, decoration: Decoration.Bold))
-                );
-            }
-        }
         public void MainMenu()
         {
             var regularChoices = new[] {
@@ -257,51 +233,7 @@ namespace apdb_3.Classes
         }
         private void ReturnGear()
         {
-            List<Gear> gearList = Database.GetRecords<Gear>("gear");
-            List<Borrow> borrows = Database.GetRecords<Borrow>("borrows");
 
-            var myBorrows = borrows.Where(b => b.ClientUsername == _user.Username).ToList();
-
-            if (myBorrows.Count == 0)
-            {
-                AnsiConsole.MarkupLine("[yellow]You don't have any borrowed gear to return at the moment.[/]");
-                GoBackToMenu();
-                return;
-            }
-
-            var selectedBorrow = AnsiConsole.Prompt(
-                new SelectionPrompt<Borrow>()
-                    .Title("Select the gear you want to [green]return[/]:")
-                    .HighlightStyle(new Style(foreground: Color.White, decoration: Decoration.Bold))
-                    .AddChoices(myBorrows)
-                    .UseConverter(borrow =>
-                    {
-                        var gear = gearList.FirstOrDefault(g => g.Id == borrow.GearId);
-
-                        TimeSpan timeRemaining = borrow.BorrowEnd - DateTime.Now;
-                        string formattedDate = borrow.BorrowEnd.ToString("dd:MM:yyyy");
-                        string humanizedDateText;
-
-                        if (timeRemaining.TotalSeconds > 0)
-                        {
-                            humanizedDateText = $"[green]{formattedDate} (in {timeRemaining.Days} days)[/]";
-                        }
-                        else
-                        {
-                            humanizedDateText = $"[red]{formattedDate} (overdue by {Math.Abs(timeRemaining.Days)} days)[/]";
-                        }
-
-                        return $"{gear.Name} - {humanizedDateText}";
-                    })
-            );
-
-            HandleOvertimeFee(selectedBorrow);
-
-            Database.DeleteRecord("borrows", selectedBorrow);
-
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[bold green]Gear successfully returned![/]");
-            GoBackToMenu();
         }
         private void ListAllGear()
         {
