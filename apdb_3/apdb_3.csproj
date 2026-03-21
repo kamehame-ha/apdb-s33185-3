@@ -13,6 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Database\borrows.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Database\users.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

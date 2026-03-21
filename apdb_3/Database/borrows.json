@@ -1,3 +1,31 @@
 {
-  "borrows": []
+  "borrows": [
+    {
+      "BorrowStart": "2023-10-15T09:00:00",
+      "BorrowEnd": "2030-10-20T17:00:00",
+      "WasReturnedInTime": false,
+      "OvertimeFee": null,
+      "ClientUsername": "student",
+      "GearId": "8f2d1b7a-4c5e-4b9a-bc1e-6d5f4a3b2c1d",
+      "Id": "e4a2d1c5-8b3f-4e92-a1b0-7c6d5e4f3a2b"
+    },
+    {
+      "BorrowStart": "2023-11-05T14:30:00",
+      "BorrowEnd": "2023-11-07T14:30:00",
+      "WasReturnedInTime": false,
+      "OvertimeFee": 25,
+      "ClientUsername": "gamer_pro",
+      "GearId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "Id": "3f9a1c2d-5b6e-48d1-90a2-c3b4e5f6a7d8"
+    },
+    {
+      "BorrowStart": "2023-12-10T08:00:00",
+      "BorrowEnd": "2023-12-12T08:00:00",
+      "WasReturnedInTime": true,
+      "OvertimeFee": null,
+      "ClientUsername": "dev_alice",
+      "GearId": "f9e8d7c6-b5a4-4321-8765-4d3c2b1a0f9e",
+      "Id": "d7c6b5a4-9e8d-4c3b-b2a1-0f9e8d7c6b5a"
+    }
+  ]
 }
