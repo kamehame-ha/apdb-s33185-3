@@ -12,7 +12,7 @@ namespace apdb_3.Classes
         public int? OvertimeFee { get; set; }
         public string ClientUsername { get; set; }
         public string GearId { get; set; }
-        public string Id { get; private set; } = Guid.NewGuid().ToString();
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public Borrow GetBorrow(string id)
         {
