@@ -8,8 +8,6 @@ namespace apdb_3.Classes
     {
         public DateTime BorrowStart { get; set; }
         public DateTime BorrowEnd { get; set; }
-        public bool WasReturnedInTime { get; set; }
-        public int? OvertimeFee { get; set; }
         public string ClientUsername { get; set; }
         public string GearId { get; set; }
         public string Id { get; set; } = Guid.NewGuid().ToString();
