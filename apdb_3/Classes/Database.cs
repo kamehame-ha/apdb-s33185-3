@@ -98,7 +98,14 @@ namespace apdb_3.Classes
 
             if (tableArray != null)
             {
-                return tableArray.ToObject<List<T>>();
+                var serializer = new JsonSerializer();
+
+                if (typeof(T) == typeof(Gear))
+                {
+                    serializer.Converters.Add(new GearConverter());
+                }
+
+                return tableArray.ToObject<List<T>>(serializer);
             }
 
             return new List<T>();
