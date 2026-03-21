@@ -4,37 +4,190 @@
       "Mpx": 33,
       "Name": "Sony A7 IV",
       "Description": "Full-frame mirrorless interchangeable lens camera.",
-      "Id": "8f2d1b7a-4c5e-4b9a-bc1e-6d5f4a3b2c1d"
+      "Id": "8f2d1b7a-4c5e-4b9a-bc1e-6d5f4a3b2c1d",
+      "Broken": false
     },
     {
       "Brand": "Sony",
       "Name": "PlayStation 5",
       "Description": "Home video game console with 4K resolution support.",
-      "Id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+      "Id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "Broken": false
     },
     {
       "Processor": "Apple M3 Pro",
       "Name": "MacBook Pro 14",
       "Description": "Professional laptop with Liquid Retina XDR display.",
-      "Id": "f9e8d7c6-b5a4-4321-8765-4d3c2b1a0f9e"
+      "Id": "f9e8d7c6-b5a4-4321-8765-4d3c2b1a0f9e",
+      "Broken": false
     },
     {
       "Mpx": 24,
       "Name": "Fujifilm X100V",
       "Description": "Premium compact digital camera with a fixed 23mm lens.",
-      "Id": "7d6e5f4a-3b2c-4d1e-8f0a-9b8c7d6e5f4a"
+      "Id": "7d6e5f4a-3b2c-4d1e-8f0a-9b8c7d6e5f4a",
+      "Broken": false
     },
     {
       "Brand": "Nintendo",
       "Name": "Nintendo Switch OLED",
       "Description": "Handheld console with a vibrant 7-inch OLED screen.",
-      "Id": "12345678-1234-1234-1234-1234567890ab"
+      "Id": "12345678-1234-1234-1234-1234567890ab",
+      "Broken": false
     },
     {
       "Processor": "Intel Core i9-13900H",
       "Name": "Razer Blade 16",
       "Description": "High-end gaming laptop with NVIDIA RTX 4090.",
-      "Id": "fedcba98-7654-3210-fedc-ba9876543210"
+      "Id": "fedcba98-7654-3210-fedc-ba9876543210",
+      "Broken": false
+    },
+    {
+      "Mpx": 45,
+      "Name": "Canon EOS R5",
+      "Description": "Professional full-frame mirrorless camera with 8K video capabilities.",
+      "Id": "c8a7e3d2-4b6f-4a1e-9c8d-7b6a5f4e3d2c",
+      "Broken": false
+    },
+    {
+      "Mpx": 46,
+      "Name": "Nikon Z9",
+      "Description": "Flagship mirrorless camera featuring a stacked CMOS sensor.",
+      "Id": "d7b6f5a4-3c2d-4b1e-8a9f-0e1d2c3b4a5f",
+      "Broken": false
+    },
+    {
+      "Mpx": 61,
+      "Name": "Sony A7R V",
+      "Description": "High-resolution mirrorless camera tailored for detailed photography.",
+      "Id": "e6a5d4c3-2b1a-4f9e-8d7c-6b5a4f3e2d1c",
+      "Broken": false
+    },
+    {
+      "Mpx": 24,
+      "Name": "Panasonic Lumix S5 II",
+      "Description": "Hybrid full-frame camera with phase-detection autofocus.",
+      "Id": "f5b4c3d2-1a0f-4e9d-8c7b-6a5f4e3d2c1b",
+      "Broken": true
+    },
+    {
+      "Mpx": 60,
+      "Name": "Leica Q3",
+      "Description": "Premium compact camera with a fixed Summilux 28mm lens.",
+      "Id": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "Broken": false
+    },
+    {
+      "Mpx": 20,
+      "Name": "Olympus OM-1",
+      "Description": "Micro Four Thirds system camera designed for wildlife and sports.",
+      "Id": "2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e",
+      "Broken": false
+    },
+    {
+      "Mpx": 102,
+      "Name": "Fujifilm GFX 100S",
+      "Description": "Medium format mirrorless camera providing immense resolution.",
+      "Id": "3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f",
+      "Broken": false
+    },
+    {
+      "Brand": "Microsoft",
+      "Name": "Xbox Series X",
+      "Description": "Next-generation gaming console with 12 teraflops of processing power.",
+      "Id": "4d5e6f7a-8b9c-4d0e-1f2a-3b4c5d6e7f8a",
+      "Broken": false
+    },
+    {
+      "Brand": "Microsoft",
+      "Name": "Xbox Series S",
+      "Description": "Compact, all-digital next-gen console.",
+      "Id": "5e6f7a8b-9c0d-4e1f-2a3b-4c5d6e7f8a9b",
+      "Broken": false
+    },
+    {
+      "Brand": "Valve",
+      "Name": "Steam Deck OLED",
+      "Description": "Handheld PC gaming device with a custom APU and HDR OLED screen.",
+      "Id": "6f7a8b9c-0d1e-4f2a-3b4c-5d6e7f8a9b0c",
+      "Broken": false
+    },
+    {
+      "Brand": "ASUS",
+      "Name": "ROG Ally",
+      "Description": "Windows 11 gaming handheld powered by AMD Ryzen Z1 Extreme.",
+      "Id": "7a8b9c0d-1e2f-4a3b-4c5d-6e7f8a9b0c1d",
+      "Broken": true
+    },
+    {
+      "Brand": "Sony",
+      "Name": "PlayStation 4 Pro",
+      "Description": "Previous generation console featuring upgraded 4K graphics support.",
+      "Id": "8b9c0d1e-2f3a-4b4c-5d6e-7f8a9b0c1d2e",
+      "Broken": false
+    },
+    {
+      "Brand": "Nintendo",
+      "Name": "Nintendo Switch Lite",
+      "Description": "Dedicated handheld version of the popular Nintendo Switch.",
+      "Id": "9c0d1e2f-3a4b-4c5d-6e7f-8a9b0c1d2e3f",
+      "Broken": false
+    },
+    {
+      "Brand": "Lenovo",
+      "Name": "Legion Go",
+      "Description": "Handheld gaming PC with detachable controllers and a large QHD+ display.",
+      "Id": "0d1e2f3a-4b5c-4d6e-7f8a-9b0c1d2e3f4a",
+      "Broken": false
+    },
+    {
+      "Processor": "Intel Core i7-13700H",
+      "Name": "Dell XPS 15",
+      "Description": "Premium ultrabook with a stunning 3.5K OLED InfinityEdge display.",
+      "Id": "1e2f3a4b-5c6d-4e7f-8a9b-0c1d2e3f4a5b",
+      "Broken": false
+    },
+    {
+      "Processor": "Intel Core i7-1355U",
+      "Name": "Lenovo ThinkPad X1 Carbon Gen 11",
+      "Description": "Ultra-lightweight and durable business laptop.",
+      "Id": "2f3a4b5c-6d7e-4f8a-9b0c-1d2e3f4a5b6c",
+      "Broken": false
+    },
+    {
+      "Processor": "AMD Ryzen 9 7940HS",
+      "Name": "ASUS ROG Zephyrus G14",
+      "Description": "Compact 14-inch gaming laptop with a mini-LED display.",
+      "Id": "3a4b5c6d-7e8f-4a9b-0c1d-2e3f4a5b6c7d",
+      "Broken": false
+    },
+    {
+      "Processor": "Apple M3",
+      "Name": "MacBook Air 15",
+      "Description": "Thin and light fanless laptop with excellent battery life.",
+      "Id": "4b5c6d7e-8f9a-4b0c-1d2e-3f4a5b6c7d8e",
+      "Broken": false
+    },
+    {
+      "Processor": "Intel Core i7-1360P",
+      "Name": "HP Spectre x360 14",
+      "Description": "Versatile 2-in-1 convertible laptop with active stylus support.",
+      "Id": "5c6d7e8f-9a0b-4c1d-2e3f-4a5b6c7d8e9f",
+      "Broken": true
+    },
+    {
+      "Processor": "Intel Core i9-13900HX",
+      "Name": "Acer Predator Helios 16",
+      "Description": "High-performance gaming laptop with advanced cooling.",
+      "Id": "6d7e8f9a-0b1c-4d2e-3f4a-5b6c7d8e9f0a",
+      "Broken": false
+    },
+    {
+      "Processor": "AMD Ryzen 7 7840U",
+      "Name": "Framework Laptop 13",
+      "Description": "Highly modular, repairable, and upgradeable thin-and-light laptop.",
+      "Id": "7e8f9a0b-1c2d-4e3f-4a5b-6c7d8e9f0a1b",
+      "Broken": false
     }
   ]
 }
