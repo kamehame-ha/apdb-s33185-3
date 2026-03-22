@@ -297,7 +297,7 @@ namespace apdb_3.Classes
 
             HandleOvertimeFee(selectedBorrow);
 
-            Database.DeleteRecord("borrows", selectedBorrow);
+            selectedBorrow.DeleteBorrow();
 
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[bold green]Gear successfully returned![/]");
