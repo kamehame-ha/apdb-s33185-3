@@ -33,7 +33,7 @@ namespace apdb_3.Classes
         public void MakeReturn(bool returnedInTime)
         {
             Database.UpdateRecord("borrows", "Id", Id, "Returned", true);
-            Database.UpdateRecord("borrows", "Id", Id, "Overdue", returnedInTime);
+            Database.UpdateRecord("borrows", "Id", Id, "Overdue", !returnedInTime);
         }
     }
 }
