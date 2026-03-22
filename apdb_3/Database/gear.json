@@ -196,7 +196,7 @@
       "Name": "ASUS ROG Zephyrus G14",
       "Description": "Compact 14-inch gaming laptop with a mini-LED display.",
       "Id": "3a4b5c6d-7e8f-4a9b-0c1d-2e3f4a5b6c7d",
-      "Broken": false
+      "Broken": true
     },
     {
       "Processor": "Apple M3",
