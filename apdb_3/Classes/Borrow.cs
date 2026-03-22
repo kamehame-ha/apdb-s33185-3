@@ -11,6 +11,8 @@ namespace apdb_3.Classes
         public string ClientUsername { get; set; }
         public string GearId { get; set; }
         public string Id { get; set; } = Guid.NewGuid().ToString();
+        public bool Returned { get; set; }
+        public bool Overdue { get; set; }
 
         public Borrow GetBorrow(string id)
         {
@@ -28,6 +30,10 @@ namespace apdb_3.Classes
             Database.DeleteRecord("borrows", this);
         }
 
-
+        public void MakeReturn(bool returnedInTime)
+        {
+            Database.UpdateRecord("borrows", "Id", Id, "Returned", true);
+            Database.UpdateRecord("borrows", "Id", Id, "Overdue", returnedInTime);
+        }
     }
 }
