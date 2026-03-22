@@ -94,7 +94,7 @@ namespace apdb_3.Classes
             {
                 int overdueDays = Math.Max(1, Math.Abs(timeRemainingForReturn.Days));
 
-                double feePerDay = _user.PermissionLevel > 0 ? 2.5 : 5.0;
+                double feePerDay = _user.PermissionLevel > 0 ? Limits.EmployeeOverdueFee : Limits.RegularOverdueFee;
                 double totalFee = overdueDays * feePerDay;
 
                 AnsiConsole.WriteLine();
@@ -184,13 +184,15 @@ namespace apdb_3.Classes
 
                 if (gear.GetType() == typeof(Camera))
                 {
-                    additionalInfo = $"[grey]Mpx:[/] [cyan]{((Camera)gear).Mpx}[/]";
-                } else if (gear.GetType() == typeof(Laptop))
+                    additionalInfo = $"[grey]Mpx:[/] [cyan]{((Camera)gear).Mpx}[/]\n[grey]Lens:[/] [cyan]{((Camera)gear).Lens}[/]";
+                }
+                else if (gear.GetType() == typeof(Laptop))
                 {
-                    additionalInfo = $"[grey]Processor:[/] [cyan]{((Laptop)gear).Processor}[/]";
-                } else if (gear.GetType() == typeof(GamingConsole))
+                    additionalInfo = $"[grey]Processor:[/] [cyan]{((Laptop)gear).Processor}[/]\n[grey]Ram:[/] [cyan]{((Laptop)gear).Ram}GB[/]\n[grey]Storage:[/] [cyan]{((Laptop)gear).Storage}GB[/]";
+                }
+                else if (gear.GetType() == typeof(GamingConsole))
                 {
-                    additionalInfo = $"[grey]Brand:[/] [cyan]{((GamingConsole)gear).Brand}[/]";
+                    additionalInfo = $"[grey]Brand:[/] [cyan]{((GamingConsole)gear).Brand}[/]\n[grey]Storage:[/] [cyan]{((GamingConsole)gear).Storage}GB[/]\n[grey]Disc Reader:[/] [cyan]{(((GamingConsole)gear).DiscReader ? "Yes" : "No")}[/]";
                 }
 
                 table.AddRow($"[green]{gear.Name}[/]", $"[purple]{gear.Description}[/]", $"{additionalInfo}");
@@ -219,21 +221,19 @@ namespace apdb_3.Classes
             {
                 var gear = gearList.FirstOrDefault(g => g.Id == borrow.GearId);
 
-                if (gear == null) continue;
-
                 string additionalInfo = "";
 
                 if (gear.GetType() == typeof(Camera))
                 {
-                    additionalInfo = $"[grey]Mpx:[/] [cyan]{((Camera)gear).Mpx}[/]";
+                    additionalInfo = $"[grey]Mpx:[/] [cyan]{((Camera)gear).Mpx}[/]\n[grey]Lens:[/] [cyan]{((Camera)gear).Lens}[/]";
                 }
                 else if (gear.GetType() == typeof(Laptop))
                 {
-                    additionalInfo = $"[grey]Processor:[/] [cyan]{((Laptop)gear).Processor}[/]";
+                    additionalInfo = $"[grey]Processor:[/] [cyan]{((Laptop)gear).Processor}[/]\n[grey]Ram:[/] [cyan]{((Laptop)gear).Ram}GB[/]\n[grey]Storage:[/] [cyan]{((Laptop)gear).Storage}GB[/]";
                 }
                 else if (gear.GetType() == typeof(GamingConsole))
                 {
-                    additionalInfo = $"[grey]Brand:[/] [cyan]{((GamingConsole)gear).Brand}[/]";
+                    additionalInfo = $"[grey]Brand:[/] [cyan]{((GamingConsole)gear).Brand}[/]\n[grey]Storage:[/] [cyan]{((GamingConsole)gear).Storage}GB[/]\n[grey]Disc Reader:[/] [cyan]{(((GamingConsole)gear).DiscReader ? "Yes" : "No")}[/]";
                 }
 
                 TimeSpan timeRemaining = borrow.BorrowEnd - DateTime.Now;
@@ -260,7 +260,7 @@ namespace apdb_3.Classes
             List<Gear> gearList = Database.GetRecords<Gear>("gear");
             List<Borrow> borrows = Database.GetRecords<Borrow>("borrows");
 
-            var myBorrows = borrows.Where(b => b.ClientUsername == _user.Username).ToList();
+            var myBorrows = borrows.Where(b => b.ClientUsername == _user.Username && b.Returned != true).ToList();
 
             if (myBorrows.Count == 0)
             {
@@ -268,6 +268,8 @@ namespace apdb_3.Classes
                 GoBackToMenu();
                 return;
             }
+
+            bool returnedInTime = false;
 
             var selectedBorrow = AnsiConsole.Prompt(
                 new SelectionPrompt<Borrow>()
@@ -281,6 +283,7 @@ namespace apdb_3.Classes
                         TimeSpan timeRemaining = borrow.BorrowEnd - DateTime.Now;
                         string formattedDate = borrow.BorrowEnd.ToString("dd:MM:yyyy");
                         string humanizedDateText;
+                        returnedInTime = timeRemaining.TotalSeconds > 0 ? true : false;
 
                         if (timeRemaining.TotalSeconds > 0)
                         {
@@ -296,8 +299,7 @@ namespace apdb_3.Classes
             );
 
             HandleOvertimeFee(selectedBorrow);
-
-            selectedBorrow.DeleteBorrow();
+            selectedBorrow.MakeReturn(returnedInTime);
 
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[bold green]Gear successfully returned![/]");
@@ -305,7 +307,57 @@ namespace apdb_3.Classes
         }
         private void ListAllGear()
         {
+            List<Gear> gearList = Database.GetRecords<Gear>("gear");
+            List<Borrow> borrows = Database.GetRecords<Borrow>("borrows");
 
+            var table = new Table();
+            table.Border(TableBorder.Rounded);
+            table.ShowRowSeparators();
+            table.AddColumn("[bold]Name[/]");
+            table.AddColumn("[bold]Description[/]");
+            table.AddColumn("[bold]Additional Info[/]");
+            table.AddColumn("[bold]Status[/]");
+            table.Title("All Gear in Warehouse");
+
+            foreach (var gear in gearList)
+            {
+                string additionalInfo = "";
+
+                if (gear.GetType() == typeof(Camera))
+                {
+                    additionalInfo = $"[grey]Mpx:[/] [cyan]{((Camera)gear).Mpx}[/]\n[grey]Lens:[/] [cyan]{((Camera)gear).Lens}[/]";
+                }
+                else if (gear.GetType() == typeof(Laptop))
+                {
+                    additionalInfo = $"[grey]Processor:[/] [cyan]{((Laptop)gear).Processor}[/]\n[grey]Ram:[/] [cyan]{((Laptop)gear).Ram}GB[/]\n[grey]Storage:[/] [cyan]{((Laptop)gear).Storage}GB[/]";
+                }
+                else if (gear.GetType() == typeof(GamingConsole))
+                {
+                    additionalInfo = $"[grey]Brand:[/] [cyan]{((GamingConsole)gear).Brand}[/]\n[grey]Storage:[/] [cyan]{((GamingConsole)gear).Storage}GB[/]\n[grey]Disc Reader:[/] [cyan]{(((GamingConsole)gear).DiscReader ? "Yes" : "No")}[/]";
+                }
+
+                string status;
+
+                var activeBorrow = borrows.FirstOrDefault(b => b.GearId == gear.Id && b.Returned != true);
+
+                if (gear.Broken)
+                {
+                    status = "[red]Broken[/]";
+                }
+                else if (activeBorrow != null)
+                {
+                    status = $"[yellow]Borrowed by {activeBorrow.ClientUsername}[/]";
+                }
+                else
+                {
+                    status = "[green]Available[/]";
+                }
+
+                table.AddRow($"[green]{gear.Name}[/]", $"[purple]{gear.Description}[/]", additionalInfo, status);
+            }
+
+            AnsiConsole.Write(table);
+            GoBackToMenu();
         }
         private void LendGear()
         {
