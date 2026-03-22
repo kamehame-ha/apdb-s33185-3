@@ -7,5 +7,7 @@ namespace apdb_3.Classes.GearTypes
     public class GamingConsole : Gear
     {
         public string Brand { get; set; }
+        public int Storage { get; set; }
+        public bool DiscReader { get; set; }
     }
 }
