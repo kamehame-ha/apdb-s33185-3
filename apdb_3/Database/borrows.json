@@ -5,63 +5,81 @@
       "BorrowEnd": "2030-10-20T17:00:00",
       "ClientUsername": "student",
       "GearId": "8f2d1b7a-4c5e-4b9a-bc1e-6d5f4a3b2c1d",
-      "Id": "e4a2d1c5-8b3f-4e92-a1b0-7c6d5e4f3a2b"
+      "Id": "e4a2d1c5-8b3f-4e92-a1b0-7c6d5e4f3a2b",
+      "Returned": false,
+      "Overdue": false
     },
     {
       "BorrowStart": "2023-11-05T14:30:00",
       "BorrowEnd": "2023-11-07T14:30:00",
       "ClientUsername": "gamer_pro",
       "GearId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
-      "Id": "3f9a1c2d-5b6e-48d1-90a2-c3b4e5f6a7d8"
+      "Id": "3f9a1c2d-5b6e-48d1-90a2-c3b4e5f6a7d8",
+      "Returned": false,
+      "Overdue": false
     },
     {
       "BorrowStart": "2023-12-10T08:00:00",
       "BorrowEnd": "2023-12-12T08:00:00",
       "ClientUsername": "dev_alice",
       "GearId": "f9e8d7c6-b5a4-4321-8765-4d3c2b1a0f9e",
-      "Id": "d7c6b5a4-9e8d-4c3b-b2a1-0f9e8d7c6b5a"
+      "Id": "d7c6b5a4-9e8d-4c3b-b2a1-0f9e8d7c6b5a",
+      "Returned": false,
+      "Overdue": false
     },
     {
       "BorrowStart": "2026-03-01T10:00:00",
       "BorrowEnd": "2026-03-16T10:00:00",
       "ClientUsername": "student",
       "GearId": "7d6e5f4a-3b2c-4d1e-8f0a-9b8c7d6e5f4a",
-      "Id": "11111111-2222-3333-4444-555555555555"
+      "Id": "11111111-2222-3333-4444-555555555555",
+      "Returned": false,
+      "Overdue": false
     },
     {
       "BorrowStart": "2026-02-20T12:00:00",
       "BorrowEnd": "2026-03-07T12:00:00",
       "ClientUsername": "student",
       "GearId": "12345678-1234-1234-1234-1234567890ab",
-      "Id": "66666666-7777-8888-9999-aaaaaaaaaaaa"
+      "Id": "66666666-7777-8888-9999-aaaaaaaaaaaa",
+      "Returned": false,
+      "Overdue": false
     },
     {
       "BorrowStart": "2026-02-01T09:00:00",
       "BorrowEnd": "2026-02-19T09:00:00",
       "ClientUsername": "student",
       "GearId": "fedcba98-7654-3210-fedc-ba9876543210",
-      "Id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff"
+      "Id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+      "Returned": false,
+      "Overdue": false
     },
     {
       "BorrowStart": "2026-03-18T14:00:00",
       "BorrowEnd": "2026-03-25T14:00:00",
       "ClientUsername": "student",
       "GearId": "c8a7e3d2-4b6f-4a1e-9c8d-7b6a5f4e3d2c",
-      "Id": "12121212-3434-5656-7878-909090909090"
+      "Id": "12121212-3434-5656-7878-909090909090",
+      "Returned": false,
+      "Overdue": false
     },
     {
       "BorrowStart": "2026-03-20T11:00:00",
       "BorrowEnd": "2026-04-10T11:00:00",
       "ClientUsername": "student",
       "GearId": "d7b6f5a4-3c2d-4b1e-8a9f-0e1d2c3b4a5f",
-      "Id": "abababab-cdcd-efef-1212-343434343434"
+      "Id": "abababab-cdcd-efef-1212-343434343434",
+      "Returned": false,
+      "Overdue": false
     },
     {
       "BorrowStart": "2026-03-21T09:00:00",
       "BorrowEnd": "2026-05-01T09:00:00",
       "ClientUsername": "student",
       "GearId": "e6a5d4c3-2b1a-4f9e-8d7c-6b5a4f3e2d1c",
-      "Id": "98989898-7676-5454-3232-101010101010"
+      "Id": "98989898-7676-5454-3232-101010101010",
+      "Returned": false,
+      "Overdue": false
     }
   ]
 }
