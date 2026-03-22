@@ -111,7 +111,7 @@ namespace apdb_3.Classes
             return new List<T>();
         }
 
-        public static void UpdateRecord(string table, string searchProperty, string searchString, Object newData)
+        public static void UpdateRecord(string table, string searchProperty, string searchString, string propertyToUpdate, object newValue)
         {
             string filePath = GetFilePath(table);
             if (!File.Exists(filePath)) throw new FileNotFoundException($"Database file for '{table}' not found.");
@@ -126,7 +126,7 @@ namespace apdb_3.Classes
                 {
                     if (item[searchProperty] != null && item[searchProperty].ToString() == searchString)
                     {
-                        item.Replace(JToken.FromObject(newData));
+                        item[propertyToUpdate] = JToken.FromObject(newValue);
 
                         File.WriteAllText(filePath, root.ToString(Formatting.Indented));
                         return;
