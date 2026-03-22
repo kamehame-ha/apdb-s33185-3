@@ -14,3 +14,8 @@
 
 Zastosowałem taki podział w celu zwiększenia czytelności, całe ui znajduje się w jednej klasie podczas gdy reszta klas to w zasadzie tylko klasy modeli danych. Klasa database jest kompletnie wydzielona ze względu na to że jest wykorzystywana przez wiele klas
 
+## Podział branchy
+
+* dev - branch na którym pisałem kod
+* test - większość początkowych testów, później pełny test systemu
+* master - branch produkcyjny, nie ruszany do ostatecznego merga
