@@ -4,8 +4,10 @@ using System.Text;
 
 namespace apdb_3.Classes.GearTypes
 {
-    public class Console : Gear
+    public class GamingConsole : Gear
     {
         public string Brand { get; set; }
+        public int Storage { get; set; }
+        public bool DiscReader { get; set; }
     }
 }

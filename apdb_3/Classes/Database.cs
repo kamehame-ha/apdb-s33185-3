@@ -85,5 +85,54 @@ namespace apdb_3.Classes
 
             return default(T);
         }
+
+        public static List<T> GetRecords<T>(string table)
+        {
+            string filePath = GetFilePath(table);
+
+            if (!File.Exists(filePath)) return new List<T>();
+
+            string jsonContent = File.ReadAllText(filePath);
+            JObject root = JObject.Parse(jsonContent);
+            JArray tableArray = (JArray)root[table];
+
+            if (tableArray != null)
+            {
+                var serializer = new JsonSerializer();
+
+                if (typeof(T) == typeof(Gear))
+                {
+                    serializer.Converters.Add(new GearConverter());
+                }
+
+                return tableArray.ToObject<List<T>>(serializer);
+            }
+
+            return new List<T>();
+        }
+
+        public static void UpdateRecord(string table, string searchProperty, string searchString, string propertyToUpdate, object newValue)
+        {
+            string filePath = GetFilePath(table);
+            if (!File.Exists(filePath)) throw new FileNotFoundException($"Database file for '{table}' not found.");
+
+            string jsonContent = File.ReadAllText(filePath);
+            JObject root = JObject.Parse(jsonContent);
+            JArray tableArray = (JArray)root[table];
+
+            if (tableArray != null)
+            {
+                foreach (JObject item in tableArray)
+                {
+                    if (item[searchProperty] != null && item[searchProperty].ToString() == searchString)
+                    {
+                        item[propertyToUpdate] = JToken.FromObject(newValue);
+
+                        File.WriteAllText(filePath, root.ToString(Formatting.Indented));
+                        return;
+                    }
+                }
+            }
+        }
     }
 }

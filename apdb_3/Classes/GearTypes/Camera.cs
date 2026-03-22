@@ -6,6 +6,7 @@ namespace apdb_3.Classes.GearTypes
 {
     public class Camera : Gear
     {
-        public int Mpx { get; set; } 
+        public int Mpx { get; set; }
+        public string Lens { get; set; }
     }
 }

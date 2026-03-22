@@ -8,8 +8,8 @@ namespace apdb_3.Classes
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Id { get; set; }
-        public BorrowInfo? BorrowInfo { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public bool Broken { get; set; }
 
         public Gear GetGear(string id)
         {
@@ -20,6 +20,11 @@ namespace apdb_3.Classes
         public void CreateGear()
         {
             Database.AddRecord("gear", this);
+        }
+
+        public void DeleteGear()
+        {
+            Database.DeleteRecord("gear", this);
         }
     }
 }

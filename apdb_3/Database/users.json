@@ -1,3 +1,19 @@
 {
-  "users": []
+  "users": [
+    {
+      "Username": "admin",
+      "Password": "12345678",
+      "PermissionLevel": 2
+    },
+    {
+      "Username": "student",
+      "Password": "12345678",
+      "PermissionLevel": 0
+    },
+    {
+      "Username": "employee",
+      "Password": "12345678",
+      "PermissionLevel": 1
+    }
+  ]
 }

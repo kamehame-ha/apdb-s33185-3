@@ -1,5 +1,8 @@
-﻿using System;
+﻿using apdb_3.Classes.GearTypes;
+using Spectre.Console;
+using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace apdb_3.Classes
@@ -626,7 +629,7 @@ namespace apdb_3.Classes
             table.AddColumn("[bold]Description[/]");
             table.AddColumn("[bold]Additional Info[/]");
             table.AddColumn("[bold]Overdue By[/]");
-            table.Title("All overdue gear");
+            table.Title("All Overdue Gear");
 
             var overdueBorrows = borrows.Where(b => !b.Returned && (b.BorrowEnd - DateTime.Now).TotalSeconds < 0).ToList();
 
@@ -734,7 +737,7 @@ namespace apdb_3.Classes
                     }
                 }
 
-                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Users report");
+                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Users Report");
                 table.AddColumn("[bold]Username[/]");
                 table.AddColumn("[bold]Permission Level[/]");
 
@@ -824,7 +827,7 @@ namespace apdb_3.Classes
                     }
                 }
 
-                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Gear report");
+                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Gear Report");
                 table.AddColumn("[bold]Id[/]");
                 table.AddColumn("[bold]Name[/]");
                 table.AddColumn("[bold]Description[/]");
@@ -905,7 +908,7 @@ namespace apdb_3.Classes
                     }
                 }
 
-                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Borrows report");
+                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Borrows Report");
                 table.AddColumn("[bold]Id[/]");
                 table.AddColumn("[bold]GearId[/]");
                 table.AddColumn("[bold]Client[/]");
