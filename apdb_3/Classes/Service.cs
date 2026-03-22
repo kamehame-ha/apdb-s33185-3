@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using apdb_3.Classes.GearTypes;
+﻿using apdb_3.Classes.GearTypes;
 using Spectre.Console;
+using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using System.Text;
 
 namespace apdb_3.Classes
 {
@@ -173,10 +174,7 @@ namespace apdb_3.Classes
             table.AddColumn("[bold]Additional Info[/]");
             table.Title("Gear ready to be borrowed");
 
-            gearList.RemoveAll(x => borrows.Any(y =>
-                y.GearId == x.Id &&
-                y.BorrowEnd > DateTime.Now
-            ));
+            gearList.RemoveAll(x => x.Broken || borrows.Any(y => y.GearId == x.Id && !y.Returned));
 
             gearList.ForEach(gear =>
             {
@@ -216,6 +214,13 @@ namespace apdb_3.Classes
             table.Title("Your borrowed gear");
 
             var myBorrows = borrows.Where(b => b.ClientUsername == _user.Username).ToList();
+
+            if (myBorrows.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]You don't have any borrowed gear at the moment.[/]");
+                GoBackToMenu();
+                return;
+            }
 
             foreach (var borrow in myBorrows)
             {
@@ -269,8 +274,6 @@ namespace apdb_3.Classes
                 return;
             }
 
-            bool returnedInTime = false;
-
             var selectedBorrow = AnsiConsole.Prompt(
                 new SelectionPrompt<Borrow>()
                     .Title("Select the gear you want to [green]return[/]:")
@@ -283,7 +286,6 @@ namespace apdb_3.Classes
                         TimeSpan timeRemaining = borrow.BorrowEnd - DateTime.Now;
                         string formattedDate = borrow.BorrowEnd.ToString("dd:MM:yyyy");
                         string humanizedDateText;
-                        returnedInTime = timeRemaining.TotalSeconds > 0 ? true : false;
 
                         if (timeRemaining.TotalSeconds > 0)
                         {
@@ -299,9 +301,12 @@ namespace apdb_3.Classes
             );
 
             HandleOvertimeFee(selectedBorrow);
+
+            TimeSpan finalTimeRemaining = selectedBorrow.BorrowEnd - DateTime.Now;
+            bool returnedInTime = finalTimeRemaining.TotalSeconds > 0;
+
             selectedBorrow.MakeReturn(returnedInTime);
 
-            AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[bold green]Gear successfully returned![/]");
             GoBackToMenu();
         }
@@ -317,7 +322,7 @@ namespace apdb_3.Classes
             table.AddColumn("[bold]Description[/]");
             table.AddColumn("[bold]Additional Info[/]");
             table.AddColumn("[bold]Status[/]");
-            table.Title("All Gear in Warehouse");
+            table.Title("All gear in warehouse");
 
             foreach (var gear in gearList)
             {
@@ -361,23 +366,320 @@ namespace apdb_3.Classes
         }
         private void LendGear()
         {
+            var choice_user = AnsiConsole.Prompt(
+                new SelectionPrompt<User>()
+                    .Title("Select user you want to lend gear to:")
+                    .PageSize(10)
+                    .EnableSearch()
+                    .SearchPlaceholderText("Type username to search...")
+                    .UseConverter(user => $"[grey]{user.Username}[/]{(user.Username == _user.Username ? " (You)" : "")}")
+                    .HighlightStyle(new Style(foreground: Color.White, decoration: Decoration.Bold))
+                    .AddChoices(Database.GetRecords<User>("users"))
+            );
 
+            AnsiConsole.Clear();
+
+            ResetConsole();
+
+            List<Borrow> borrows = Database.GetRecords<Borrow>("borrows");
+
+            int limit = choice_user.PermissionLevel > 0 ? Limits.EmployeeMaxActiveBorrows : Limits.MaxActiveBorrows;
+
+            if (borrows.FindAll(x => x.ClientUsername == choice_user.Username).Count >= limit)
+            {
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[red]User [bold]{choice_user.Username}[/] exceeded borrow limit[/]");
+                GoBackToMenu();
+                return;
+            }
+
+            List<Gear> gearList = Database.GetRecords<Gear>("gear");
+
+            gearList.RemoveAll(x => x.Broken || borrows.Any(y => y.GearId == x.Id && !y.Returned));
+
+            var choice_gear = AnsiConsole.Prompt(
+                new SelectionPrompt<Gear>()
+                    .Title("Select gear you want to lend:")
+                    .PageSize(10)
+                    .EnableSearch()
+                    .SearchPlaceholderText("Type text to search...")
+                    .UseConverter(gear => $"[grey]{gear.Name}[/]")
+                    .HighlightStyle(new Style(foreground: Color.White, decoration: Decoration.Bold))
+                    .AddChoices(gearList)
+            );
+
+            AnsiConsole.Clear();
+
+            ResetConsole();
+
+            AnsiConsole.WriteLine();
+            int duration = AnsiConsole.Ask<int>("For how many [bold]days[/]?");
+
+            AnsiConsole.Clear();
+
+            ResetConsole();
+
+            AnsiConsole.WriteLine();
+
+            var user_table = new Table();
+            user_table.Border(TableBorder.Rounded);
+            user_table.ShowRowSeparators();
+            user_table.AddColumn("[bold]Username[/]");
+            user_table.AddColumn("[bold]Type[/]");
+            user_table.AddColumn("[bold]Active borrows[/]");
+
+            int activeBorrows = borrows.FindAll(x => x.ClientUsername == choice_user.Username && x.Returned != true).Count;
+
+            user_table.AddRow($"[green]{choice_user.Username}[/]", $"{(choice_user.PermissionLevel == 0 ? "Regular" : choice_user.PermissionLevel == 1 ? "Employee" : "Admin")}", $"[yellow]{activeBorrows}[/]");
+
+            var gear_table = new Table();
+            gear_table.Border(TableBorder.Rounded);
+            gear_table.ShowRowSeparators();
+            gear_table.AddColumn("[bold]Name[/]");
+            gear_table.AddColumn("[bold]Desciption[/]");
+            gear_table.AddColumn("[bold]Additional Info[/]");
+
+            string additionalInfo = "";
+
+            if (choice_gear.GetType() == typeof(Camera))
+            {
+                additionalInfo = $"[grey]Mpx:[/] [cyan]{((Camera)choice_gear).Mpx}[/]\n[grey]Lens:[/] [cyan]{((Camera)choice_gear).Lens}[/]";
+            }
+            else if (choice_gear.GetType() == typeof(Laptop))
+            {
+                additionalInfo = $"[grey]Processor:[/] [cyan]{((Laptop)choice_gear).Processor}[/]\n[grey]Ram:[/] [cyan]{((Laptop)choice_gear).Ram}GB[/]\n[grey]Storage:[/] [cyan]{((Laptop)choice_gear).Storage}GB[/]";
+            }
+            else if (choice_gear.GetType() == typeof(GamingConsole))
+            {
+                additionalInfo = $"[grey]Brand:[/] [cyan]{((GamingConsole)choice_gear).Brand}[/]\n[grey]Storage:[/] [cyan]{((GamingConsole)choice_gear).Storage}GB[/]\n[grey]Disc Reader:[/] [cyan]{(((GamingConsole)choice_gear).DiscReader ? "Yes" : "No")}[/]";
+            }
+
+            gear_table.AddRow($"[green]{choice_gear.Name}[/]", $"[purple]{choice_gear.Description}[/]", additionalInfo);
+
+            AnsiConsole.Write(user_table);
+            AnsiConsole.Write(gear_table);
+            AnsiConsole.MarkupLine($"[yellow]Duration:[/] [cyan]{duration}[/] [yellow]days[/]");
+
+            AnsiConsole.WriteLine();
+
+            if (AnsiConsole.Confirm("Check data above and then confirm..."))
+            {
+                Borrow borrow = new Borrow()
+                {
+                    BorrowStart = DateTime.Now,
+                    BorrowEnd = DateTime.Now.AddDays(duration),
+                    ClientUsername = choice_user.Username,
+                    GearId = choice_gear.Id,
+                    Overdue = false,
+                    Returned = false
+                };
+
+                borrow.CreateBorrow();
+
+                AnsiConsole.Clear();
+                ResetConsole();
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[bold green]Gear successfully lent to {choice_user.Username}![/]");
+                GoBackToMenu();
+            } else
+            {
+                AnsiConsole.Clear();
+                ResetConsole();
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[bold red]Operation aborted[/]");
+                GoBackToMenu();
+            }
         }
         private void ChangeGearStatus()
         {
+            List<Gear> gearList = Database.GetRecords<Gear>("gear");
+            List<Borrow> borrows = Database.GetRecords<Borrow>("borrows");
 
+            gearList.RemoveAll(x => borrows.Any(y => y.GearId == x.Id && !y.Returned));
+
+            if (gearList.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]No available gear to change status at the moment.[/]");
+                GoBackToMenu();
+                return;
+            }
+
+            var choice_gear = AnsiConsole.Prompt(
+                new SelectionPrompt<Gear>()
+                    .Title("Select gear to change its [bold]Broken[/] status:")
+                    .PageSize(10)
+                    .EnableSearch()
+                    .SearchPlaceholderText("Type text to search...")
+                    .UseConverter(gear => $"[grey]{gear.Name}[/] - Status: {(gear.Broken ? "[red]Broken[/]" : "[green]Working[/]")}")
+                    .HighlightStyle(new Style(foreground: Color.White, decoration: Decoration.Bold))
+                    .AddChoices(gearList)
+            );
+
+            bool newStatus = !choice_gear.Broken;
+
+            Database.UpdateRecord("gear", "Id", choice_gear.Id, "Broken", newStatus);
+
+            AnsiConsole.Clear();
+            ResetConsole();
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine($"[bold green]Gear '{choice_gear.Name}' status successfully changed to {(newStatus ? "[red]Broken[/]" : "[green]Working[/]")}![/]");
+            GoBackToMenu();
         }
         private void ListUserGear()
         {
+            var choice_user = AnsiConsole.Prompt(
+                new SelectionPrompt<User>()
+                    .Title("Select user to view their borrowed gear:")
+                    .PageSize(10)
+                    .EnableSearch()
+                    .SearchPlaceholderText("Type username to search...")
+                    .UseConverter(user => $"[grey]{user.Username}[/]")
+                    .HighlightStyle(new Style(foreground: Color.White, decoration: Decoration.Bold))
+                    .AddChoices(Database.GetRecords<User>("users"))
+            );
 
+            AnsiConsole.Clear();
+            ResetConsole();
+
+            List<Gear> gearList = Database.GetRecords<Gear>("gear");
+            List<Borrow> borrows = Database.GetRecords<Borrow>("borrows");
+
+            var table = new Table();
+            table.Border(TableBorder.Rounded);
+            table.ShowRowSeparators();
+            table.AddColumn("[bold]Name[/]");
+            table.AddColumn("[bold]Description[/]");
+            table.AddColumn("[bold]Additional Info[/]");
+            table.AddColumn("[bold]Return Date[/]");
+            table.Title($"Borrowed gear: {choice_user.Username}");
+
+            var userBorrows = borrows.Where(b => b.ClientUsername == choice_user.Username && !b.Returned).ToList();
+
+            if (userBorrows.Count == 0)
+            {
+                AnsiConsole.MarkupLine($"[yellow]User {choice_user.Username} doesn't have any borrowed gear at the moment.[/]");
+                GoBackToMenu();
+                return;
+            }
+
+            foreach (var borrow in userBorrows)
+            {
+                var gear = gearList.FirstOrDefault(g => g.Id == borrow.GearId);
+                if (gear == null) continue;
+
+                string additionalInfo = "";
+
+                if (gear.GetType() == typeof(Camera))
+                {
+                    additionalInfo = $"[grey]Mpx:[/] [cyan]{((Camera)gear).Mpx}[/]\n[grey]Lens:[/] [cyan]{((Camera)gear).Lens}[/]";
+                }
+                else if (gear.GetType() == typeof(Laptop))
+                {
+                    additionalInfo = $"[grey]Processor:[/] [cyan]{((Laptop)gear).Processor}[/]\n[grey]Ram:[/] [cyan]{((Laptop)gear).Ram}GB[/]\n[grey]Storage:[/] [cyan]{((Laptop)gear).Storage}GB[/]";
+                }
+                else if (gear.GetType() == typeof(GamingConsole))
+                {
+                    additionalInfo = $"[grey]Brand:[/] [cyan]{((GamingConsole)gear).Brand}[/]\n[grey]Storage:[/] [cyan]{((GamingConsole)gear).Storage}GB[/]\n[grey]Disc Reader:[/] [cyan]{(((GamingConsole)gear).DiscReader ? "Yes" : "No")}[/]";
+                }
+
+                TimeSpan timeRemaining = borrow.BorrowEnd - DateTime.Now;
+                string formattedDate = borrow.BorrowEnd.ToString("dd:MM:yyyy");
+                string humanizedDateText;
+
+                if (timeRemaining.TotalSeconds > 0)
+                {
+                    humanizedDateText = $"[green]{formattedDate} (in {timeRemaining.Days} days)[/]";
+                }
+                else
+                {
+                    humanizedDateText = $"[red]{formattedDate} (overdue by {Math.Abs(timeRemaining.Days)} days)[/]";
+                }
+
+                table.AddRow($"[green]{gear.Name}[/]", $"[purple]{gear.Description}[/]", additionalInfo, humanizedDateText);
+            }
+
+            AnsiConsole.Write(table);
+            GoBackToMenu();
         }
         private void ListBorrowOvertimes()
         {
+            List<Gear> gearList = Database.GetRecords<Gear>("gear");
+            List<Borrow> borrows = Database.GetRecords<Borrow>("borrows");
 
+            var table = new Table();
+            table.Border(TableBorder.Rounded);
+            table.ShowRowSeparators();
+            table.AddColumn("[bold]Client[/]");
+            table.AddColumn("[bold]Name[/]");
+            table.AddColumn("[bold]Description[/]");
+            table.AddColumn("[bold]Additional Info[/]");
+            table.AddColumn("[bold]Overdue By[/]");
+            table.Title("All Overdue Gear");
+
+            var overdueBorrows = borrows.Where(b => !b.Returned && (b.BorrowEnd - DateTime.Now).TotalSeconds < 0).ToList();
+
+            if (overdueBorrows.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[green]No gears are currently overdue![/]");
+                GoBackToMenu();
+                return;
+            }
+
+            foreach (var borrow in overdueBorrows)
+            {
+                var gear = gearList.FirstOrDefault(g => g.Id == borrow.GearId);
+                if (gear == null) continue;
+
+                string additionalInfo = "";
+
+                if (gear.GetType() == typeof(Camera))
+                {
+                    additionalInfo = $"[grey]Mpx:[/] [cyan]{((Camera)gear).Mpx}[/]\n[grey]Lens:[/] [cyan]{((Camera)gear).Lens}[/]";
+                }
+                else if (gear.GetType() == typeof(Laptop))
+                {
+                    additionalInfo = $"[grey]Processor:[/] [cyan]{((Laptop)gear).Processor}[/]\n[grey]Ram:[/] [cyan]{((Laptop)gear).Ram}GB[/]\n[grey]Storage:[/] [cyan]{((Laptop)gear).Storage}GB[/]";
+                }
+                else if (gear.GetType() == typeof(GamingConsole))
+                {
+                    additionalInfo = $"[grey]Brand:[/] [cyan]{((GamingConsole)gear).Brand}[/]\n[grey]Storage:[/] [cyan]{((GamingConsole)gear).Storage}GB[/]\n[grey]Disc Reader:[/] [cyan]{(((GamingConsole)gear).DiscReader ? "Yes" : "No")}[/]";
+                }
+
+                TimeSpan timeRemaining = borrow.BorrowEnd - DateTime.Now;
+                string overdueText = $"[red]{Math.Abs(timeRemaining.Days)} days[/]";
+
+                table.AddRow($"[yellow]{borrow.ClientUsername}[/]", $"[green]{gear.Name}[/]", $"[purple]{gear.Description}[/]", additionalInfo, overdueText);
+            }
+
+            AnsiConsole.Write(table);
+            GoBackToMenu();
         }
         private void AddNewUser()
         {
+            var username = AnsiConsole.Ask<string>("Enter [green]username[/] for the new user:");
+            var password = AnsiConsole.Ask<string>("Enter [green]password[/]:");
 
+            var permissionChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Select user's [green]permission level[/]:")
+                    .HighlightStyle(new Style(foreground: Color.White, decoration: Decoration.Bold))
+                    .AddChoices(new[] { "0 = Student", "1 = Employee", "2 = Admin" })
+            );
+
+            int permissionLevel = int.Parse(permissionChoice.Substring(0, 1));
+
+            User newUser = new User
+            {
+                Username = username,
+                Password = password,
+                PermissionLevel = permissionLevel
+            };
+
+            newUser.CreateUser();
+
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine($"[bold green]User '{username}' created successfully![/]");
+            GoBackToMenu();
         }
         private void GenerateWarehouseReport()
         {
@@ -385,7 +687,47 @@ namespace apdb_3.Classes
         }
         private void AddNewItemToWarehouse()
         {
+            var typeChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Select the [green]type[/] of gear to add:")
+                    .HighlightStyle(new Style(foreground: Color.White, decoration: Decoration.Bold))
+                    .AddChoices(new[] { "Camera", "Laptop", "Gaming Console" })
+            );
 
+            var name = AnsiConsole.Ask<string>("Enter [green]Name[/]:");
+            var description = AnsiConsole.Ask<string>("Enter [green]Description[/]:");
+
+            Gear newGear = null;
+
+            if (typeChoice == "Camera")
+            {
+                var mpx = AnsiConsole.Ask<int>("Enter [green]Megapixels (Mpx)[/]:");
+                var lens = AnsiConsole.Ask<string>("Enter [green]Lens[/]:");
+                newGear = new Camera { Name = name, Description = description, Mpx = mpx, Lens = lens };
+            }
+            else if (typeChoice == "Laptop")
+            {
+                var processor = AnsiConsole.Ask<string>("Enter [green]Processor[/]:");
+                var ram = AnsiConsole.Ask<int>("Enter [green]RAM (GB)[/]:");
+                var storage = AnsiConsole.Ask<int>("Enter [green]Storage (GB)[/]:");
+                newGear = new Laptop { Name = name, Description = description, Processor = processor, Ram = ram, Storage = storage };
+            }
+            else if (typeChoice == "Gaming Console")
+            {
+                var brand = AnsiConsole.Ask<string>("Enter [green]Brand[/]:");
+                var storage = AnsiConsole.Ask<int>("Enter [green]Storage (GB)[/]:");
+                var discReader = AnsiConsole.Confirm("Does it have a [green]Disc Reader[/]?");
+                newGear = new GamingConsole { Name = name, Description = description, Brand = brand, Storage = storage, DiscReader = discReader };
+            }
+
+            if (newGear != null)
+            {
+                newGear.CreateGear();
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[bold green]New {typeChoice} '{name}' successfully added to the warehouse![/]");
+            }
+
+            GoBackToMenu();
         }
     }
 }
