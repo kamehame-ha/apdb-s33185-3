@@ -40,7 +40,22 @@ namespace apdb_3.Classes
             ResetConsole();
             MainMenu();
         }
+        private DateTime PromptForDate(string promptMsg)
+        {
+            string input = AnsiConsole.Prompt(
+                new TextPrompt<string>(promptMsg)
+                    .Validate(str =>
+                    {
+                        if (DateTime.TryParseExact(str, "dd:MM:yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _))
+                        {
+                            return ValidationResult.Success();
+                        }
+                        return ValidationResult.Error("[red]Invalid date format. Please use DD:MM:YYYY[/]");
+                    })
+            );
 
+            return DateTime.ParseExact(input, "dd:MM:yyyy", System.Globalization.CultureInfo.InvariantCulture);
+        }
         public void Init()
         {
             bool isAuthenticated = false;
@@ -683,7 +698,244 @@ namespace apdb_3.Classes
         }
         private void GenerateWarehouseReport()
         {
+            var reportType = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Select the [green]type of report[/] to generate:")
+                    .HighlightStyle(new Style(foreground: Color.White, decoration: Decoration.Bold))
+                    .AddChoices("Users", "Gear", "Borrows")
+            );
 
+            bool applyFilters = AnsiConsole.Confirm("Would you like to apply filters?");
+
+            if (reportType == "Users")
+            {
+                var users = Database.GetRecords<User>("users");
+
+                if (applyFilters)
+                {
+                    var filters = AnsiConsole.Prompt(
+                        new MultiSelectionPrompt<string>()
+                            .Title("Select [green]filters[/] to apply (Press Space to select, Enter to accept):")
+                            .AddChoices("Permission Level", "Username")
+                    );
+
+                    if (filters.Contains("Permission Level"))
+                    {
+                        var levelChoice = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("Select [green]Permission Level[/]:")
+                                .AddChoices("0 = Student", "1 = Employee", "2 = Admin")
+                        );
+                        int level = int.Parse(levelChoice.Substring(0, 1));
+                        users = users.Where(u => u.PermissionLevel == level).ToList();
+                    }
+
+                    if (filters.Contains("Username"))
+                    {
+                        var searchStr = AnsiConsole.Ask<string>("Enter [green]Username[/] search string:");
+                        users = users.Where(u => u.Username.Contains(searchStr, StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+                }
+
+                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Users Report");
+                table.AddColumn("[bold]Username[/]");
+                table.AddColumn("[bold]Permission Level[/]");
+
+                foreach (var user in users)
+                {
+                    string permStr = user.PermissionLevel == 0 ? "Student (0)" : user.PermissionLevel == 1 ? "Employee (1)" : "Admin (2)";
+                    table.AddRow($"[green]{user.Username}[/]", $"[cyan]{permStr}[/]");
+                }
+
+                AnsiConsole.Clear();
+                ResetConsole();
+                AnsiConsole.Write(table);
+            }
+            else if (reportType == "Gear")
+            {
+                var gears = Database.GetRecords<Gear>("gear");
+
+                if (applyFilters)
+                {
+                    var filters = AnsiConsole.Prompt(
+                        new MultiSelectionPrompt<string>()
+                            .Title("Select [green]filters[/] to apply:")
+                            .AddChoices("Type", "Type and additional info", "Name", "Description", "Id", "Broken status")
+                    );
+
+                    if (filters.Contains("Type") && !filters.Contains("Type and additional info"))
+                    {
+                        var typeChoice = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("Select [green]Gear Type[/]:")
+                                .AddChoices("Camera", "Laptop", "Gaming Console")
+                        );
+                        gears = gears.Where(g =>
+                            (typeChoice == "Camera" && g is Camera) ||
+                            (typeChoice == "Laptop" && g is Laptop) ||
+                            (typeChoice == "Gaming Console" && g is GamingConsole)
+                        ).ToList();
+                    }
+
+                    if (filters.Contains("Type and additional info"))
+                    {
+                        var typeChoice = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("Select [green]Gear Type[/] for advanced filtering:")
+                                .AddChoices("Camera", "Laptop", "Gaming Console")
+                        );
+
+                        if (typeChoice == "Camera")
+                        {
+                            var minMpx = AnsiConsole.Ask<int>("Enter minimum [green]Mpx[/] (Enter 0 to ignore):");
+                            gears = gears.Where(g => g is Camera c && c.Mpx >= minMpx).ToList();
+                        }
+                        else if (typeChoice == "Laptop")
+                        {
+                            var minRam = AnsiConsole.Ask<int>("Enter minimum [green]RAM[/] in GB (Enter 0 to ignore):");
+                            gears = gears.Where(g => g is Laptop l && l.Ram >= minRam).ToList();
+                        }
+                        else if (typeChoice == "Gaming Console")
+                        {
+                            var brandSearch = AnsiConsole.Ask<string>("Enter [green]Brand[/] to search (or leave empty):");
+                            gears = gears.Where(g => g is GamingConsole gc && gc.Brand.Contains(brandSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+                        }
+                    }
+
+                    if (filters.Contains("Name"))
+                    {
+                        var searchStr = AnsiConsole.Ask<string>("Enter [green]Name[/] search string:");
+                        gears = gears.Where(g => g.Name.Contains(searchStr, StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+
+                    if (filters.Contains("Description"))
+                    {
+                        var searchStr = AnsiConsole.Ask<string>("Enter [green]Description[/] search string:");
+                        gears = gears.Where(g => g.Description.Contains(searchStr, StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+
+                    if (filters.Contains("Id"))
+                    {
+                        var searchStr = AnsiConsole.Ask<string>("Enter full [green]Id[/]:");
+                        gears = gears.Where(g => g.Id == searchStr).ToList();
+                    }
+
+                    if (filters.Contains("Broken status"))
+                    {
+                        var isBroken = AnsiConsole.Confirm("Filter for [red]Broken[/] gear? (No = Working gear)");
+                        gears = gears.Where(g => g.Broken == isBroken).ToList();
+                    }
+                }
+
+                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Gear Report");
+                table.AddColumn("[bold]Id[/]");
+                table.AddColumn("[bold]Name[/]");
+                table.AddColumn("[bold]Description[/]");
+                table.AddColumn("[bold]Type[/]");
+                table.AddColumn("[bold]Additional Info[/]");
+                table.AddColumn("[bold]Broken[/]");
+
+                foreach (var gear in gears)
+                {
+                    string typeStr = "Gear";
+                    string addInfo = "-";
+
+                    if (gear is Camera c) { typeStr = "Camera"; addInfo = $"[grey]Mpx:[/] [cyan]{c.Mpx}[/]\n[grey]Lens:[/] [cyan]{c.Lens}[/]"; }
+                    else if (gear is Laptop l) { typeStr = "Laptop"; addInfo = $"[grey]Processor:[/] [cyan]{l.Processor}[/]\n[grey]Ram:[/] [cyan]{l.Ram}GB[/]\n[grey]Storage:[/] [cyan]{l.Storage}GB[/]"; }
+                    else if (gear is GamingConsole gc) { typeStr = "Gaming Console"; addInfo = $"[grey]Brand:[/] [cyan]{gc.Brand}[/]\n[grey]Storage:[/] [cyan]{gc.Storage}GB[/]\n[grey]Disc Reader:[/] [cyan]{(gc.DiscReader ? "Yes" : "No")}[/]"; }
+
+                    table.AddRow($"[grey]{gear.Id}[/]", $"[green]{gear.Name}[/]", $"[purple]{gear.Description}[/]", $"[cyan]{typeStr}[/]", addInfo, gear.Broken ? "[red]Yes[/]" : "[green]No[/]");
+                }
+
+                AnsiConsole.Clear();
+                ResetConsole();
+                AnsiConsole.Write(table);
+            }
+            else if (reportType == "Borrows")
+            {
+                var borrows = Database.GetRecords<Borrow>("borrows");
+
+                if (applyFilters)
+                {
+                    var filters = AnsiConsole.Prompt(
+                        new MultiSelectionPrompt<string>()
+                            .Title("Select [green]filters[/] to apply:")
+                            .AddChoices("BorrowStart", "BorrowEnd", "Client username", "Id", "GearId", "Overdue value", "Returned value")
+                    );
+
+                    if (filters.Contains("BorrowStart"))
+                    {
+                        var startDate = PromptForDate("Enter [green]BorrowStart START Date[/] (DD:MM:YYYY):");
+                        var endDate = PromptForDate("Enter [green]BorrowStart END Date[/] (DD:MM:YYYY):");
+                        borrows = borrows.Where(b => b.BorrowStart >= startDate && b.BorrowStart <= endDate.AddDays(1).AddTicks(-1)).ToList();
+                    }
+
+                    if (filters.Contains("BorrowEnd"))
+                    {
+                        var startDate = PromptForDate("Enter [green]BorrowEnd START Date[/] (DD:MM:YYYY):");
+                        var endDate = PromptForDate("Enter [green]BorrowEnd END Date[/] (DD:MM:YYYY):");
+                        borrows = borrows.Where(b => b.BorrowEnd >= startDate && b.BorrowEnd <= endDate.AddDays(1).AddTicks(-1)).ToList();
+                    }
+
+                    if (filters.Contains("Client username"))
+                    {
+                        var searchStr = AnsiConsole.Ask<string>("Enter [green]Client Username[/] search string:");
+                        borrows = borrows.Where(b => b.ClientUsername.Contains(searchStr, StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+
+                    if (filters.Contains("Id"))
+                    {
+                        var searchStr = AnsiConsole.Ask<string>("Enter full Borrow [green]Id[/]:");
+                        borrows = borrows.Where(b => b.Id == searchStr).ToList();
+                    }
+
+                    if (filters.Contains("GearId"))
+                    {
+                        var searchStr = AnsiConsole.Ask<string>("Enter full [green]GearId[/]:");
+                        borrows = borrows.Where(b => b.GearId == searchStr).ToList();
+                    }
+
+                    if (filters.Contains("Overdue value"))
+                    {
+                        var isOverdue = AnsiConsole.Confirm("Filter for [red]Overdue[/] borrows? (No = Not Overdue)");
+                        borrows = borrows.Where(b => b.Overdue == isOverdue).ToList();
+                    }
+
+                    if (filters.Contains("Returned value"))
+                    {
+                        var isReturned = AnsiConsole.Confirm("Filter for [green]Returned[/] borrows? (No = Not Returned)");
+                        borrows = borrows.Where(b => b.Returned == isReturned).ToList();
+                    }
+                }
+
+                var table = new Table().Border(TableBorder.Rounded).ShowRowSeparators().Title("Borrows Report");
+                table.AddColumn("[bold]Id[/]");
+                table.AddColumn("[bold]GearId[/]");
+                table.AddColumn("[bold]Client[/]");
+                table.AddColumn("[bold]BorrowStart[/]");
+                table.AddColumn("[bold]BorrowEnd[/]");
+                table.AddColumn("[bold]Returned[/]");
+                table.AddColumn("[bold]Returned as overdue[/]");
+
+                foreach (var borrow in borrows)
+                {
+                    table.AddRow(
+                        $"[grey]{borrow.Id}[/]",
+                        $"[grey]{borrow.GearId}[/]",
+                        $"[yellow]{borrow.ClientUsername}[/]",
+                        $"[cyan]{borrow.BorrowStart:dd:MM:yyyy HH:mm}[/]",
+                        $"[cyan]{borrow.BorrowEnd:dd:MM:yyyy HH:mm}[/]",
+                        borrow.Returned ? "[green]Yes[/]" : "[red]No[/]",
+                        borrow.Overdue ? "[red]Yes[/]" : "[green]No[/]"
+                    );
+                }
+
+                AnsiConsole.Clear();
+                ResetConsole();
+                AnsiConsole.Write(table);
+            }
+
+            GoBackToMenu();
         }
         private void AddNewItemToWarehouse()
         {
