@@ -19,3 +19,11 @@ Zastosowałem taki podział w celu zwiększenia czytelności, całe ui znajduje 
 * dev - branch na którym pisałem kod
 * test - większość początkowych testów, później pełny test systemu
 * master - branch produkcyjny, nie ruszany do ostatecznego merga
+
+## Uruchomienie
+
+1. Kompilacja projektu
+2. Jeśli folder Database wraz z zawartością się nie skopiował sam do root folderu skompilowanej aplikacji należy go skopiować
+3. Uruchom program
+
+*Dane logowania użytkowników znajdują się w pliku `users.json`*
